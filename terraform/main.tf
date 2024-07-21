@@ -44,7 +44,8 @@ resource "proxmox_vm_qemu" "vm" {
   network {
     model = "virtio"
     bridge = var.network_bridge
-    ipconfig0 = "ip=${var.vm_ip},gw=${var.gateway}"
+    ipconfig0 = var.vm_ip
+    gw = "192.168.1.1" # Puerta de enlace definida directamente
   }
   clone = var.clone_template
   sshkeys = file(var.ssh_key_path)
