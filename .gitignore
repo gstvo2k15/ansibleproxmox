@@ -1,0 +1,38 @@
+# Terraform files
+*.tfstate
+*.tfstate.backup
+
+# Ansible files
+*.retry
+*.log
+
+# SSH keys
+*.pem
+*.pub
+id_rsa
+id_rsa.pub
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.iml
+
+# Python virtual environments
+venv/
+ENV/
+env/
+
+# MacOS files
+.DS_Store
