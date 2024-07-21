@@ -14,8 +14,7 @@ on:
       vm_ip:
         description: "IP address for the VM"
         required: true
-        default: 192.168.1.171
-        type: number
+        type: string
       vm_cores:
         description: "Number of CPU cores for the VM"
         required: true
@@ -33,54 +32,8 @@ on:
         type: string
 
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Install SSH Agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-                
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_wrapper: false
-
-      - name: Change directory to terraform
-        run: cd terraform
-
-      - name: Initialize Terraform
-        working-directory: ./terraform
-        run: terraform init
-
-      - name: Apply Terraform
-        id: apply
-        working-directory: ./terraform
-        run: terraform apply -auto-approve
-        env:
-          TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
-          TF_VAR_pm_user: ${{ secrets.PM_USER }}
-          TF_VAR_pm_password: ${{ secrets.PM_PASSWORD }}
-          TF_VAR_vm_name: "vm-${{ github.run_id }}"
-          TF_VAR_target_node: ${{ secrets.TARGET_NODE }}
-          TF_VAR_storage: ${{ secrets.STORAGE }}
-          TF_VAR_vm_cores: ${{ github.event.inputs.vm_cores }}
-          TF_VAR_vm_memory: ${{ github.event.inputs.vm_memory }}
-          TF_VAR_vm_disk_size: ${{ github.event.inputs.vm_disk_size }}
-          TF_VAR_network_bridge: ${{ secrets.NETWORK_BRIDGE }}
-          TF_VAR_gateway: ${{ secrets.GATEWAY }}
-          TF_VAR_clone_template: ${{ secrets.CLONE_TEMPLATE }}
-          TF_VAR_ssh_key_path: ${{ secrets.SSH_KEY_PATH }}
-          TF_VAR_vm_ip: ${{ github.event.inputs.vm_ip }}
-          TF_VAR_os_image: ${{ github.event.inputs.os_image }}
-
-  ansible:
-    runs-on: ubuntu-latest
-    needs: terraform
 
     steps:
       - name: Checkout repository
@@ -91,18 +44,42 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install Ansible
-        run: sudo apt update && sudo apt install -y ansible
+      - name: Copy repository to server
+        run: scp -r ./* user@{{ secrets.ANSIBLE_TERRAFORM_SERVER }}:/home/user/proxmox-automation
 
-      - name: Run Ansible Playbook
+      - name: SSH to server and run Terraform
         run: |
+          ssh user@{{ secrets.ANSIBLE_TERRAFORM_SERVER }} <<EOF
+          cd /home/user/proxmox-automation/terraform
+          terraform init
+          terraform apply -auto-approve \
+            -var pm_api_url=${{ secrets.PM_API_URL }} \
+            -var pm_user=${{ secrets.PM_USER }} \
+            -var pm_password=${{ secrets.PM_PASSWORD }} \
+            -var vm_name="vm-${{ github.run_id }}" \
+            -var target_node=${{ secrets.TARGET_NODE }} \
+            -var storage=${{ secrets.STORAGE }} \
+            -var vm_cores=${{ github.event.inputs.vm_cores }} \
+            -var vm_memory=${{ github.event.inputs.vm_memory }} \
+            -var vm_disk_size=${{ github.event.inputs.vm_disk_size }} \
+            -var network_bridge=${{ secrets.NETWORK_BRIDGE }} \
+            -var clone_template=${{ secrets.CLONE_TEMPLATE }} \
+            -var ssh_key_path=${{ secrets.SSH_KEY_PATH }} \
+            -var vm_ip=${{ github.event.inputs.vm_ip }} \
+            -var os_image=${{ github.event.inputs.os_image }}
+          EOF
+
+      - name: SSH to server and run Ansible
+        run: |
+          ssh user@{{ secrets.ANSIBLE_TERRAFORM_SERVER }} <<EOF
+          cd /home/user/proxmox-automation
           echo "[all]" > ansible/inventory.ini
           echo "vm ansible_host=${{ github.event.inputs.vm_ip }}" >> ansible/inventory.ini
           echo "[all:vars]" >> ansible/inventory.ini
           echo "ansible_user=deploy" >> ansible/inventory.ini
-          echo "ansible_ssh_private_key_file=~/.ssh/github_actions" >> ansible/inventory.ini
+          echo "ansible_ssh_private_key_file=/home/user/.ssh/id_rsa" >> ansible/inventory.ini
           ansible-playbook -i ansible/inventory.ini ansible/site.yml
+          EOF
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'False'
           USER_NAME: ${{ secrets.USER_NAME }}
-
