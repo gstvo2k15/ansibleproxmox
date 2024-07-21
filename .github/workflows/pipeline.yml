@@ -46,12 +46,14 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Copy repository to server
-        run: scp -r ./* user@{{ secrets.ANSIBLE_TERRAFORM_SERVER }}:/home/user/proxmox-automation
-
+        run: |
+          scp -r ./* root@${{ secrets.ANSIBLE_TERRAFORM_SERVER }}:/deployments/
+        shell: bash
+  
       - name: SSH to server and run Terraform
         run: |
-          ssh user@{{ secrets.ANSIBLE_TERRAFORM_SERVER }} <<EOF
-          cd /home/user/proxmox-automation/terraform
+          ssh root@${{ secrets.ANSIBLE_TERRAFORM_SERVER }} <<EOF
+          cd /deployments/terraform
           terraform init
           terraform apply -auto-approve \
             -var pm_api_url=${{ secrets.PM_API_URL }} \
@@ -69,11 +71,12 @@ jobs:
             -var vm_ip=${{ github.event.inputs.vm_ip }} \
             -var os_image=${{ github.event.inputs.os_image }}
           EOF
-
+        shell: bash
+  
       - name: SSH to server and run Ansible
         run: |
-          ssh user@{{ secrets.ANSIBLE_TERRAFORM_SERVER }} <<EOF
-          cd /home/user/proxmox-automation
+          ssh user@${{ secrets.ANSIBLE_TERRAFORM_SERVER }} <<EOF
+          cd /deployments/
           echo "[all]" > ansible/inventory.ini
           echo "vm ansible_host=${{ github.event.inputs.vm_ip }}" >> ansible/inventory.ini
           echo "[all:vars]" >> ansible/inventory.ini
@@ -81,6 +84,7 @@ jobs:
           echo "ansible_ssh_private_key_file=/home/user/.ssh/id_rsa" >> ansible/inventory.ini
           ansible-playbook -i ansible/inventory.ini ansible/site.yml
           EOF
+        shell: bash
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'False'
           USER_NAME: ${{ secrets.USER_NAME }}
