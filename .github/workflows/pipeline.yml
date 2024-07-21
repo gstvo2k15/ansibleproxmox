@@ -11,6 +11,25 @@ on:
         options:
           - ubuntu22
           - rocky9
+      vm_ip:
+        description: "IP address for the VM"
+        required: true
+        type: string
+      vm_cores:
+        description: "Number of CPU cores for the VM"
+        required: true
+        default: 2
+        type: number
+      vm_memory:
+        description: "Amount of RAM for the VM in MB"
+        required: true
+        default: 2048
+        type: number
+      vm_disk_size:
+        description: "Disk size for the VM"
+        required: true
+        default: "32G"
+        type: string
 
 jobs:
   terraform:
@@ -40,17 +59,17 @@ jobs:
           TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
           TF_VAR_pm_user: ${{ secrets.PM_USER }}
           TF_VAR_pm_password: ${{ secrets.PM_PASSWORD }}
-          TF_VAR_vm_count: ${{ secrets.VM_COUNT }}
+          TF_VAR_vm_name: "vm-${{ github.run_id }}"
           TF_VAR_target_node: ${{ secrets.TARGET_NODE }}
           TF_VAR_storage: ${{ secrets.STORAGE }}
-          TF_VAR_vm_cores: ${{ secrets.VM_CORES }}
-          TF_VAR_vm_memory: ${{ secrets.VM_MEMORY }}
-          TF_VAR_vm_disk_size: ${{ secrets.VM_DISK_SIZE }}
+          TF_VAR_vm_cores: ${{ github.event.inputs.vm_cores }}
+          TF_VAR_vm_memory: ${{ github.event.inputs.vm_memory }}
+          TF_VAR_vm_disk_size: ${{ github.event.inputs.vm_disk_size }}
           TF_VAR_network_bridge: ${{ secrets.NETWORK_BRIDGE }}
           TF_VAR_gateway: ${{ secrets.GATEWAY }}
           TF_VAR_clone_template: ${{ secrets.CLONE_TEMPLATE }}
           TF_VAR_ssh_key_path: ${{ secrets.SSH_KEY_PATH }}
-          TF_VAR_vm_ips: ${{ fromJson(secrets.VM_IPS) | join(",") }}
+          TF_VAR_vm_ip: ${{ github.event.inputs.vm_ip }}
           TF_VAR_os_image: ${{ github.event.inputs.os_image }}
 
   ansible:
@@ -72,9 +91,7 @@ jobs:
       - name: Run Ansible Playbook
         run: |
           echo "[all]" > ansible/inventory.ini
-          for ip in ${{ fromJson(secrets.VM_IPS) }}; do
-            echo "vm ansible_host=$ip" >> ansible/inventory.ini
-          done
+          echo "vm ansible_host=${{ github.event.inputs.vm_ip }}" >> ansible/inventory.ini
           echo "[all:vars]" >> ansible/inventory.ini
           echo "ansible_user=deploy" >> ansible/inventory.ini
           echo "ansible_ssh_private_key_file=~/.ssh/github_actions" >> ansible/inventory.ini

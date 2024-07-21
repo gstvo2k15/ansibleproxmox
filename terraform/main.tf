@@ -17,8 +17,8 @@ locals {
 }
 
 resource "proxmox_vm_qemu" "vm" {
-  count = var.vm_count
-  name  = "vm-${count.index}"
+  count = 1
+  name  = var.vm_name
   target_node = var.target_node
   iso = local.iso_image
   storage = var.storage
@@ -35,7 +35,7 @@ resource "proxmox_vm_qemu" "vm" {
   network {
     model = "virtio"
     bridge = var.network_bridge
-    ipconfig0 = "ip=${var.vm_ips[count.index]},gw=${var.gateway}"
+    ipconfig0 = "ip=${var.vm_ip},gw=${var.gateway}"
   }
   clone = var.clone_template
   sshkeys = file(var.ssh_key_path)
@@ -57,9 +57,9 @@ variable "pm_password" {
   sensitive   = true
 }
 
-variable "vm_count" {
-  description = "Number of VMs to create"
-  type        = number
+variable "vm_name" {
+  description = "Name of the VM"
+  type        = string
 }
 
 variable "target_node" {
@@ -107,9 +107,9 @@ variable "ssh_key_path" {
   type        = string
 }
 
-variable "vm_ips" {
-  description = "List of IP addresses for the VMs"
-  type        = list(string)
+variable "vm_ip" {
+  description = "IP address for the VM"
+  type        = string
 }
 
 variable "os_image" {
