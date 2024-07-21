@@ -14,7 +14,8 @@ on:
       vm_ip:
         description: "IP address for the VM"
         required: true
-        type: string
+        default: 192.168.1.171
+        type: number
       vm_cores:
         description: "Number of CPU cores for the VM"
         required: true
@@ -39,21 +40,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+                
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_wrapper: false
 
-      - name: Install SSH Agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Change directory to terraform
+        run: cd terraform
 
       - name: Initialize Terraform
+        working-directory: ./terraform
         run: terraform init
 
       - name: Apply Terraform
         id: apply
+        working-directory: ./terraform
         run: terraform apply -auto-approve
         env:
           TF_VAR_pm_api_url: ${{ secrets.PM_API_URL }}
@@ -80,7 +86,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install SSH Agent
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -99,3 +105,4 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'False'
           USER_NAME: ${{ secrets.USER_NAME }}
+
