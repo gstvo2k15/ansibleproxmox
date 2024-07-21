@@ -14,7 +14,8 @@ on:
       vm_ip:
         description: "IP address for the VM"
         required: true
-        type: string
+        default: 192.168.1.171
+        type: number
       vm_cores:
         description: "Number of CPU cores for the VM"
         required: true
