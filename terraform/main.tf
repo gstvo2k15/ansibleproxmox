@@ -8,13 +8,11 @@ provider "proxmox" {
 locals {
   iso_image = lookup(
     {
-      "ubuntu22" = "local:iso/ubuntu-22.04.iso"
-      "rocky9"   = "local:iso/rocky-9.0.iso"
-      "ubuntu20" = "local:iso/ubuntu-20.04.iso"
-      "rocky8"   = "local:iso/rocky-8.0.iso"
+      "ubuntu22" = "local:iso/ubuntu-22.04.4-live-server-amd64.iso"
+      "rocky9"   = "local:iso/Rocky-9.3-x86_64-minimal.iso"
     },
     var.os_image,
-    "local:iso/ubuntu-22.04.iso"  # Valor predeterminado si no se encuentra ninguna coincidencia
+    "local:iso/ubuntu-22.04.4-live-server-amd64.iso"  # Valor predeterminado si no se encuentra ninguna coincidencia
   )
 }
 
