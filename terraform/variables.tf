@@ -15,11 +15,11 @@ variable "proxmox_password" {
 variable "proxmox_node_ip" {
   description = "IP address of the Proxmox node"
   type        = string
-  default     = "192.168.1.250"
+  default     = "proxmoxnode"
 }
 
 variable "proxmox_token_secret" {
   description = "Proxmox API token secret"
   type        = string
-  default     = "8cc154d7-5501-4460-804f-312169f60035"
+  default     = "a201470b-de94-4659-bffe-bdaea73ef927"
 }
