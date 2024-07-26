@@ -33,7 +33,7 @@ resource "proxmox_vm_qemu" "template" {
   clone    = "base-template" # Assume you have a base template
   ciuser   = "ubuntu"
   cipassword = "ubuntu_password"
-  sshkeys  = file("/root/ansibleproxmox/terraform/id_rsa.pub")
+  sshkeys  = file("/root/.ssh/id_rsa.pub")
 }
 
 resource "null_resource" "convert_to_template" {
