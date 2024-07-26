@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "proxmox" {
-  pm_api_url      = "https://192.168.1.250:8006/api2/json"
+  pm_api_url      = "https://${var.proxmox_node_ip}:8006/api2/json"
   pm_user         = "root@pam"
   pm_password     = var.proxmox_password
   pm_tls_insecure = true
@@ -16,7 +16,8 @@ provider "proxmox" {
 
 resource "proxmox_vm_qemu" "base" {
   name        = "ubuntu-base"
-  target_node = "var.proxmox_node_ip"
+  target_node = var.proxmox_node_ip
+  vmid        = 700  # ID for the base VM
   cores       = 2
   memory      = 4096
   disk {
@@ -34,7 +35,7 @@ resource "proxmox_vm_qemu" "base" {
 
 resource "null_resource" "convert_to_template" {
   provisioner "local-exec" {
-    command = "pvesh set /nodes/pve/qemu/${proxmox_vm_qemu.base.id}/template"
+    command = "pvesh set /nodes/${var.proxmox_node_ip}/qemu/${proxmox_vm_qemu.base.id}/template"
   }
   depends_on = [proxmox_vm_qemu.base]
 }
@@ -42,7 +43,8 @@ resource "null_resource" "convert_to_template" {
 resource "proxmox_vm_qemu" "vm" {
   count       = length(var.vm_list)
   name        = var.vm_list[count.index].name
-  target_node = "pve"
+  target_node = var.proxmox_node_ip
+  vmid        = 701 + count.index  # Start VM IDs from 701
   clone       = "ubuntu-base"
   cores       = 2
   memory      = 4096
