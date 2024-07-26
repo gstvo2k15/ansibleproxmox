@@ -1,6 +1,6 @@
 ---
-- name: Create Proxmox VMs
-  hosts: proxmox
+- name: Configure Proxmox VMs
+  hosts: all
   gather_facts: false
   vars_files:
     - vault.yml
