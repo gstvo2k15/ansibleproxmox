@@ -6,9 +6,3 @@
     - name: Run Terraform to provision VMs
       include_role:
         name: terraform_provision
-
-#- name: Update all created Proxmox VMs
-#  hosts: terraform
-#  gather_facts: false
-#  roles:
-#    - update_vm

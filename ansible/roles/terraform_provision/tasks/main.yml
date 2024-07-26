@@ -1,18 +1,8 @@
 ---
-- name: Copy Terraform files to remote host
-  synchronize:
-    src: ../terraform/
-    dest: /root/terraform/
-    recursive: yes
-
 - name: Initialize Terraform
-  command: terraform init
-  args:
-    chdir: /root/terraform
+  command: "$HOME/ansibleproxmox/terraform/terraform init"
 
 - name: Apply Terraform configuration
-  command: terraform apply -auto-approve
-  args:
-    chdir: /root/terraform
+  command: "$HOME/ansibleproxmox/terraform/terraform apply -auto-approve"
   environment:
     TF_VAR_proxmox_password: "{{ vault_proxmox_password }}"
