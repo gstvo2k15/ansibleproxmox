@@ -3,7 +3,7 @@
   hosts: localhost
   gather_facts: false
   vars_files:
-    - ../vault.yml
+    - /root/ansibleproxmox/ansible/vault.yml
 
   tasks:
     - name: Run Terraform to provision VMs
