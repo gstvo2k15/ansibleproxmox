@@ -8,8 +8,7 @@
 
 - name: Show output of 1st step in Terraform
   debug:
-    msg: "Status of terraform init output: {{ t1.stdout_lines }}"
-
+    msg: "Status of terraform init output: {{ result1.stdout_lines }}"
 
 - name: Apply Terraform configuration
   command: "terraform apply -auto-approve"
@@ -22,4 +21,4 @@
 
 - name: Show output of 2nd step in Terraform
   debug:
-    msg: "Status of terraform apply output: {{ t2.stdout_lines }}"
+    msg: "Status of terraform apply output: {{result2.stdout_lines }}"
