@@ -2,5 +2,7 @@
 - name: Create Proxmox VMs
   hosts: proxmox
   gather_facts: false
+  vars_files:
+    - vault.yml
   roles:
-    - create_vm
+    - configure_vm
