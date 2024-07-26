@@ -1,3 +1,7 @@
+proxmox_password = "0dj0b@15"
+proxmox_node_ip  = "192.168.1.250"
+proxmox_token_secret = "8f2408d0-3ffe-4759-832e-345659a0c2a7"
+
 vm_list = [
   {
     id   = 701
