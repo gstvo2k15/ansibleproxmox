@@ -19,7 +19,7 @@ resource "proxmox_vm_qemu" "vm" {
   count       = length(var.vm_list)
   name        = var.vm_list[count.index].name
   target_node = var.proxmox_node_ip
-  vmid        = 701 + count.index
+  vmid        = count.index
   cores       = 2
   memory      = 4096
   disk {
