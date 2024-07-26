@@ -15,10 +15,11 @@ provider "proxmox" {
   pm_debug           = true
 }
 
-resource "proxmox_vm_qemu" "base" {
-  name        = "ubuntu-base"
+resource "proxmox_vm_qemu" "vm" {
+  count       = length(var.vm_list)
+  name        = var.vm_list[count.index].name
   target_node = var.proxmox_node_ip
-  vmid        = 700
+  vmid        = 701 + count.index
   cores       = 2
   memory      = 4096
   disk {
@@ -32,39 +33,6 @@ resource "proxmox_vm_qemu" "base" {
   }
   iso = "local:iso/ubuntu-22.04.4-live-server-amd64.iso"
   os_type = "cloud-init"
-}
-
-resource "null_resource" "convert_to_template" {
-  provisioner "local-exec" {
-    command = "pvesh set /nodes/${var.proxmox_node_ip}/qemu/${proxmox_vm_qemu.base.id}/template"
-  }
-  depends_on = [proxmox_vm_qemu.base]
-}
-
-resource "proxmox_vm_qemu" "vm" {
-  count       = length(var.vm_list)
-  name        = var.vm_list[count.index].name
-  target_node = var.proxmox_node_ip
-  vmid        = 701 + count.index
-  clone       = "ubuntu-base"
-  cores       = 2
-  memory      = 4096
-  disk {
-    size    = "30G"
-    storage = "local-lvm"
-    type    = "scsi"
-  }
-  network {
-    model  = "virtio"
-    bridge = "vmbr0"
-  }
-  os_type = "cloud-init"
-  ciuser     = "ubuntu"
-  cipassword = "ubuntu_password"
-  sshkeys    = file("/root/.ssh/id_rsa.pub")
-  provisioner "local-exec" {
-    command = "echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
-  }
 }
 
 output "vm_ips" {
