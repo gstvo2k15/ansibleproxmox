@@ -1,8 +1,15 @@
 ---
 - name: Initialize Terraform
-  command: "$HOME/ansibleproxmox/terraform/terraform init"
+  command: |
+    cd /root/ansibleproxmox/terraform 
+    && 
+    terraform init
+
 
 - name: Apply Terraform configuration
-  command: "$HOME/ansibleproxmox/terraform/terraform apply -auto-approve"
+  command: |
+    cd /root/ansibleproxmox/terraform 
+    && 
+    terraform apply -auto-approve
   environment:
     TF_VAR_proxmox_password: "{{ vault_proxmox_password }}"
