@@ -30,9 +30,6 @@ resource "proxmox_vm_qemu" "base" {
   }
   iso = "local:iso/ubuntu-22.04.iso"
   os_type = "cloud-init"
-  ciuser = "ubuntu"
-  cipassword = "ubuntu_password"
-  sshkeys = file("/root/.ssh/id_rsa.pub")
 }
 
 resource "null_resource" "convert_to_template" {
@@ -46,7 +43,7 @@ resource "proxmox_vm_qemu" "vm" {
   count       = length(var.vm_list)
   name        = var.vm_list[count.index].name
   target_node = "pve"
-  clone       = proxmox_vm_qemu.base.name
+  clone       = "ubuntu-base"
   cores       = 2
   memory      = 4096
   disk {
