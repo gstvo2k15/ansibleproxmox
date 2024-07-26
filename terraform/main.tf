@@ -1,7 +1,7 @@
 provider "proxmox" {
   pm_api_url      = "https://192.168.1.250:8006/api2/json"
   pm_user         = "root@pam"
-  pm_password     = "your_proxmox_password"
+  pm_password     = var.proxmox_password
   pm_tls_insecure = true
 }
 
@@ -9,11 +9,11 @@ resource "proxmox_vm_qemu" "vm" {
   count       = length(var.vm_list)
   name        = var.vm_list[count.index].name
   target_node = "pve"
-  clone       = "ubuntu-template"  # Asumiendo que tienes una plantilla de Ubuntu 22.04
+  clone       = "ubuntu-template"
   cores       = 2
   memory      = 4096
   disk {
-    size = "30G"
+    size    = "30G"
     storage = "local-lvm"
   }
   network {
@@ -22,7 +22,6 @@ resource "proxmox_vm_qemu" "vm" {
   }
   os_type = "cloud-init"
 
-  # Cloud-init settings
   ciuser     = "ubuntu"
   cipassword = "ubuntu_password"
   sshkeys    = file("${path.module}/id_rsa.pub")
