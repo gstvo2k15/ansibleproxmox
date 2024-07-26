@@ -8,7 +8,7 @@
         name: terraform
 
 - name: Configure Proxmox VMs
-  hosts: all
+  hosts: terraform
   gather_facts: false
   roles:
     - update_vm
