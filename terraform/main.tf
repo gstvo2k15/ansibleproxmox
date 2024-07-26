@@ -8,36 +8,10 @@ terraform {
 }
 
 provider "proxmox" {
-  pm_api_url      = "https://${var.proxmox_node_ip}:8006/api2/json"
+  pm_api_url      = "https://192.168.1.250:8006/api2/json"
   pm_user         = "root@pam"
   pm_password     = var.proxmox_password
-  pm_tls_insecure = true
-}
-
-resource "proxmox_vm_qemu" "base" {
-  name        = "ubuntu-base"
-  target_node = var.proxmox_node_ip
-  vmid        = 700  # ID for the base VM
-  cores       = 2
-  memory      = 4096
-  disk {
-    size    = "30G"
-    storage = "local-lvm"
-    type    = "scsi"
-  }
-  network {
-    model  = "virtio"
-    bridge = "vmbr0"
-  }
-  iso = "local:iso/ubuntu-22.04.iso"
-  os_type = "cloud-init"
-}
-
-resource "null_resource" "convert_to_template" {
-  provisioner "local-exec" {
-    command = "pvesh set /nodes/${var.proxmox_node_ip}/qemu/${proxmox_vm_qemu.base.id}/template"
-  }
-  depends_on = [proxmox_vm_qemu.base]
+  pm_tls_insecure = true  # Deshabilita la verificación del certificado SSL
 }
 
 resource "proxmox_vm_qemu" "vm" {
@@ -60,10 +34,10 @@ resource "proxmox_vm_qemu" "vm" {
   os_type = "cloud-init"
   ciuser     = "ubuntu"
   cipassword = "ubuntu_password"
-  sshkeys    = file("/root/.ssh/id_rsa.pub")
-  provisioner "local-exec" {
-    command = "echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
-  }
+  #sshkeys    = file("/root/.ssh/id_rsa.pub")
+  #provisioner "local-exec" {
+  #  command = "echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
+  #}
 }
 
 output "vm_ips" {
