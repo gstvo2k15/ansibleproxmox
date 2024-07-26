@@ -18,6 +18,9 @@
   tags: t2
   environment:
     TF_VAR_proxmox_password: "{{ proxmox_password  }}"
+    TF_LOG: "INFO"
+    TF_IN_AUTOMATION: "1"
+    TF_CLI_ARGS: "-no-color"    
 
 - name: Show output of 2nd step in Terraform
   debug:
