@@ -1,6 +1,6 @@
 ---
 - name: Initialize Terraform
-  command: "terraform apply -auto-approve"
+  command: "terraform init"
   args:
     chdir: "/root/ansibleproxmox/terraform"
   register: result1
