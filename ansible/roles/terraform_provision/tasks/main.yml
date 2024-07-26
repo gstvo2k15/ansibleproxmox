@@ -1,15 +1,15 @@
 ---
 - name: Initialize Terraform
-  command: 
-    chg_dir: /root/ansibleproxmox/terraform
-    cmd: terraform apply -auto-approve
+  command: "terraform apply -auto-approve"
+  args:
+    chg_dir: "/root/ansibleproxmox/terraform"
   register: result1
   tags: t1
 
 - name: Apply Terraform configuration
-  command: 
-    chg_dir: /root/ansibleproxmox/terraform
-    cmd: terraform apply -auto-approve
+  command: "terraform apply -auto-approve"
+  args:
+    chg_dir: "/root/ansibleproxmox/terraform"
   register: result2
   tags: t2
   environment:
