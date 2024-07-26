@@ -33,7 +33,7 @@ resource "proxmox_vm_qemu" "vm" {
 
   ciuser     = "ubuntu"
   cipassword = "ubuntu_password"
-  sshkeys    = file("${path.module}/id_rsa.pub")
+  sshkeys    = file("/root/.ssh/id_rsa.pub")
 
   provisioner "local-exec" {
     command = "echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
