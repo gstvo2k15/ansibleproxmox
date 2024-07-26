@@ -16,7 +16,7 @@ provider "proxmox" {
 
 resource "proxmox_vm_qemu" "base" {
   name        = "ubuntu-base"
-  target_node = var.proxmox_node_ip
+  target_node = 192.168.1.250
   vmid        = 700  # ID for the base VM
   cores       = 2
   memory      = 4096
