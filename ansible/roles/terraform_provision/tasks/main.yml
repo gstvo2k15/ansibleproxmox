@@ -6,6 +6,11 @@
   register: result1
   tags: t1
 
+- name: Show output of 1st step in Terraform
+  debug:
+    msg: "Status of terraform init output: {{ t1.stdout_lines }}"
+
+
 - name: Apply Terraform configuration
   command: "terraform apply -auto-approve"
   args:
@@ -14,3 +19,7 @@
   tags: t2
   environment:
     TF_VAR_proxmox_password: "{{ vault_proxmox_password }}"
+
+- name: Show output of 2nd step in Terraform
+  debug:
+    msg: "Status of terraform apply output: {{ t2.stdout_lines }}"
