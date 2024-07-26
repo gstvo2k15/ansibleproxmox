@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    proxmox = {
-      source  = "telmate/proxmox"
-      version = "~> 2.9.7"
-    }
-  }
-}
-
 provider "proxmox" {
   pm_api_url      = "https://192.168.1.250:8006/api2/json"
   pm_user         = "root@pam"
@@ -24,6 +15,7 @@ resource "proxmox_vm_qemu" "vm" {
   disk {
     size    = "30G"
     storage = "local-lvm"
+    type    = "ssd"  # Asegúrate de incluir este argumento
   }
   network {
     model  = "virtio"
