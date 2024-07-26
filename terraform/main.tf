@@ -30,7 +30,7 @@ resource "proxmox_vm_qemu" "base" {
     model  = "virtio"
     bridge = "vmbr0"
   }
-  iso = "local:iso/ubuntu-22.0.4-live-server-amd64.iso"
+  iso = "local:iso/ubuntu-22.04.4-live-server-amd64.iso "
   os_type = "cloud-init"
 }
 
