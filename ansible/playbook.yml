@@ -1,0 +1,6 @@
+---
+- name: Create Proxmox VMs
+  hosts: proxmox
+  gather_facts: false
+  roles:
+    - create_vm
