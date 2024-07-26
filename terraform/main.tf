@@ -14,28 +14,55 @@ provider "proxmox" {
   pm_tls_insecure = true
 }
 
-resource "proxmox_vm_qemu" "vm" {
-  count       = length(var.vm_list)
-  name        = var.vm_list[count.index].name
+resource "proxmox_vm_qemu" "template" {
+  count       = 1
+  name        = "ubuntu-template"
   target_node = "pve"
-  clone       = "ubuntu-template"
   cores       = 2
   memory      = 4096
   disk {
     size    = "30G"
     storage = "local-lvm"
-    type    = "ssd"  # Asegúrate de incluir este argumento
+    type    = "scsi"
   }
   network {
     model  = "virtio"
     bridge = "vmbr0"
   }
   os_type = "cloud-init"
+  clone    = "base-template" # Assume you have a base template
+  ciuser   = "ubuntu"
+  cipassword = "ubuntu_password"
+  sshkeys  = file("/root/ansibleproxmox/terraform/id_rsa.pub")
+}
 
+resource "null_resource" "convert_to_template" {
+  provisioner "local-exec" {
+    command = "pvesh set /nodes/pve/qemu/${proxmox_vm_qemu.template.0.id}/template"
+  }
+  depends_on = [proxmox_vm_qemu.template]
+}
+
+resource "proxmox_vm_qemu" "vm" {
+  count       = length(var.vm_list)
+  name        = var.vm_list[count.index].name
+  target_node = "pve"
+  clone       = proxmox_vm_qemu.template[0].name
+  cores       = 2
+  memory      = 4096
+  disk {
+    size    = "30G"
+    storage = "local-lvm"
+    type    = "scsi"
+  }
+  network {
+    model  = "virtio"
+    bridge = "vmbr0"
+  }
+  os_type = "cloud-init"
   ciuser     = "ubuntu"
   cipassword = "ubuntu_password"
   sshkeys    = file("/root/.ssh/id_rsa.pub")
-
   provisioner "local-exec" {
     command = "echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
   }
