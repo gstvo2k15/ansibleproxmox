@@ -15,7 +15,7 @@ variable "proxmox_password" {
 variable "proxmox_node_ip" {
   description = "IP address of the Proxmox node"
   type        = string
-  default     = "proxmoxnode"
+  default     = "dellpve"
 }
 
 variable "proxmox_token_secret" {
