@@ -8,8 +8,10 @@ terraform {
 }
 
 provider "proxmox" {
-  pm_api_url         = "https://${var.proxmox_node_ip}:8006/api2/json"
-  pm_api_token_id    = "terraform-prov@pve!vmCreation"
+  pm_api_url      = "https://${var.proxmox_node_ip}:8006/api2/json"
+  pm_user         = "root@pam"
+  pm_password     = var.proxmox_password  
+  pm_api_token_id     = "root@pam!asdasdas"
   pm_api_token_secret = var.proxmox_token_secret
   pm_tls_insecure    = true
   pm_debug           = true
