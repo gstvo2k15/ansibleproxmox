@@ -17,7 +17,7 @@
   register: result2
   tags: t2
   environment:
-    TF_VAR_proxmox_password: "{{ vault_proxmox_password }}"
+    TF_VAR_proxmox_password: "{{ proxmox_password  }}"
 
 - name: Show output of 2nd step in Terraform
   debug:

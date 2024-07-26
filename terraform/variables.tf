@@ -6,3 +6,8 @@ variable "vm_list" {
   }))
   default = []
 }
+
+variable "proxmox_password" {
+  description = "Proxmox password"
+  type        = string
+}
