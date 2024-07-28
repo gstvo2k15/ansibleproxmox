@@ -1,118 +1,47 @@
-provider "proxmox" {
-  pm_api_url = var.pm_api_url
-  pm_user    = var.pm_user
-  pm_password = var.pm_password
-  pm_tls_insecure = true
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "telmate/proxmox"
+      version = "~> 2.9.7"
+    }
+  }
 }
 
-locals {
-  iso_image = lookup(
-    {
-      "ubuntu22" = "local:iso/ubuntu-22.04.4-live-server-amd64.iso"
-      "rocky9"   = "local:iso/Rocky-9.3-x86_64-minimal.iso"
-    },
-    var.os_image,
-    "local:iso/ubuntu-22.04.4-live-server-amd64.iso"  # Valor predeterminado si no se encuentra ninguna coincidencia
-  )
+provider "proxmox" {
+  pm_api_url      = "https://${var.proxmox_node_ip}:8006/api2/json"
+  pm_user         = "root@pam"
+  pm_password     = var.proxmox_password  
+  pm_tls_insecure    = true
+  pm_debug           = true
 }
 
 resource "proxmox_vm_qemu" "vm" {
-  count = var.vm_count
-  name  = "vm-${count.index}"
-  target_node = var.target_node
-  iso = local.iso_image
-  storage = var.storage
-  cores = var.vm_cores
-  sockets = 1
-  memory = var.vm_memory
-  scsihw = "virtio-scsi-pci"
-  bootdisk = "scsi0"
+  count       = length(var.vm_list)
+  name        = var.vm_list[count.index].name
+  target_node = var.proxmox_node_ip
+  vmid        = var.vm_list[count.index].id  # Usar el id especificado
+  cores       = 2
+  memory      = 4096
   disk {
-    size = var.vm_disk_size
-    type = "scsi"
-    storage = var.storage
+    size    = "30G"
+    storage = "local-lvm"
+    type    = "scsi"
   }
   network {
-    model = "virtio"
-    bridge = var.network_bridge
-    ipconfig0 = "ip=${var.vm_ips[count.index]},gw=${var.gateway}"
+    model  = "virtio"
+    bridge = "vmbr0"
   }
-  clone = var.clone_template
-  sshkeys = file(var.ssh_key_path)
+  iso = "local:iso/ubuntu-22.04.4-live-server-amd64.iso"
+  os_type = "cloud-init"
+  onboot = true
+  provisioner "local-exec" {
+    command = "sleep 60 && echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
+  }
+  additional_wait = 30
+  clone_wait = 30
+  guest_agent_ready_timeout = 120  
 }
 
-variable "pm_api_url" {
-  description = "Proxmox API URL"
-  type        = string
-}
-
-variable "pm_user" {
-  description = "Proxmox user"
-  type        = string
-}
-
-variable "pm_password" {
-  description = "Proxmox password"
-  type        = string
-  sensitive   = true
-}
-
-variable "vm_count" {
-  description = "Number of VMs to create"
-  type        = number
-}
-
-variable "target_node" {
-  description = "Proxmox target node"
-  type        = string
-}
-
-variable "storage" {
-  description = "Storage location"
-  type        = string
-}
-
-variable "vm_cores" {
-  description = "Number of CPU cores for the VM"
-  type        = number
-}
-
-variable "vm_memory" {
-  description = "Amount of RAM for the VM in MB"
-  type        = number
-}
-
-variable "vm_disk_size" {
-  description = "Disk size for the VM"
-  type        = string
-}
-
-variable "network_bridge" {
-  description = "Network bridge to use"
-  type        = string
-}
-
-variable "gateway" {
-  description = "Network gateway"
-  type        = string
-}
-
-variable "clone_template" {
-  description = "Template to clone"
-  type        = string
-}
-
-variable "ssh_key_path" {
-  description = "Path to SSH public key"
-  type        = string
-}
-
-variable "vm_ips" {
-  description = "List of IP addresses for the VMs"
-  type        = list(string)
-}
-
-variable "os_image" {
-  description = "Operating system image to use"
-  type        = string
+output "vm_ips" {
+  value = [for vm in proxmox_vm_qemu.vm : vm.default_ipv4_address]
 }

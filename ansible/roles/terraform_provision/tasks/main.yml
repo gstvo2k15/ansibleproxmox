@@ -1,0 +1,24 @@
+---
+- name: Initialize Terraform
+  command: "terraform init"
+  args:
+    chdir: "/root/ansibleproxmox/terraform"
+  register: result1
+  tags: t1
+
+- name: Show output of 1st step in Terraform
+  debug:
+    msg: "Status of terraform init output: {{ result1.stdout_lines }}"
+
+- name: Apply Terraform configuration
+  command: "terraform apply -auto-approve"
+  args:
+    chdir: "/root/ansibleproxmox/terraform"
+  register: result2
+  tags: t2
+  environment:
+    TF_VAR_proxmox_password: "{{ proxmox_password  }}"
+    TF_LOG: "INFO"
+    TF_IN_AUTOMATION: "1"
+    TF_CLI_ARGS: "-no-color"
+  ignore_errors: true
