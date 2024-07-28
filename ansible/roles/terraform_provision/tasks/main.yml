@@ -20,7 +20,8 @@
     TF_VAR_proxmox_password: "{{ proxmox_password  }}"
     TF_LOG: "INFO"
     TF_IN_AUTOMATION: "1"
-    TF_CLI_ARGS: "-no-color"    
+    TF_CLI_ARGS: "-no-color"
+  ignore_errors: true    
 
 - name: Wait for VMs to be ready
   command: sleep 60
