@@ -33,6 +33,12 @@ resource "proxmox_vm_qemu" "vm" {
   }
   iso = "local:iso/ubuntu-22.04.4-live-server-amd64.iso"
   os_type = "cloud-init"
+  provisioner "local-exec" {
+    command = "sleep 30 && echo ${self.default_ipv4_address} >> ../ansible/inventory/hosts"
+  }
+  additional_wait = 15
+  clone_wait = 15
+  guest_agent_ready_timeout = 120  
 }
 
 output "vm_ips" {
