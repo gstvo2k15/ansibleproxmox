@@ -21,16 +21,4 @@
     TF_LOG: "INFO"
     TF_IN_AUTOMATION: "1"
     TF_CLI_ARGS: "-no-color"
-  ignore_errors: true    
-
-- name: Wait for VMs to be ready
-  command: sleep 60
-
-- name: Ensure VMs are started
-  command: "qm start {{ item }}"
-  loop: "{{ range(704, 706) | list }}"
   ignore_errors: true
-
-- name: Debug information
-  debug:
-    var: result  
