@@ -22,6 +22,14 @@
     TF_IN_AUTOMATION: "1"
     TF_CLI_ARGS: "-no-color"    
 
-- name: Show output of 2nd step in Terraform
+- name: Wait for VMs to be ready
+  command: sleep 60
+
+- name: Ensure VMs are started
+  command: "qm start {{ item }}"
+  loop: "{{ range(704, 706) | list }}"
+  ignore_errors: true
+
+- name: Debug information
   debug:
-    msg: "Status of terraform apply output: {{result2.stdout_lines }}"
+    var: result  
