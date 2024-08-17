@@ -1,9 +1,18 @@
 ---
+- name: Cargar las credenciales de Azure desde el archivo cifrado
+  include_vars:
+    file: "/root/ansibleproxmox/ansible/azure_credentials.yml"
+
 - name: Initialize Terraform
   command: "terraform init"
   args:
     chdir: "/root/ansibleproxmox/terraform"
   register: result1
+
+- name: Verificar que las variables de Azure se cargaron correctamente
+  fail:
+    msg: "La variable azure_credentials no está cargada correctamente."
+  when: azure_credentials is not defined
 
 - name: Verificar variables cargadas desde el Vault
   debug:
@@ -42,4 +51,3 @@
     TF_IN_AUTOMATION: "1"
     TF_CLI_ARGS: "-no-color"
   ignore_errors: true
-
