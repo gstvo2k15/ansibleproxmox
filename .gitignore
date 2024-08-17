@@ -36,3 +36,8 @@ env/
 
 # MacOS files
 .DS_Store
+
+# Ignorar archivos y directorios generados por Terraform
+aks-terraform/.terraform/
+aks-terraform/.terraform.lock.hcl
+aks-terraform/.terraform.tfstate.lock.info

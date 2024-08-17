@@ -45,5 +45,5 @@ steps:
 
         # Aplicar la infraestructura
         echo "Aplicando la infraestructura..."
-        terraform apply -auto-approve tfplan
+        terraform apply -auto-approve tfplan -var "TF_LOG=DEBUG"
     displayName: "Ejecutar Terraform con Azure CLI"
