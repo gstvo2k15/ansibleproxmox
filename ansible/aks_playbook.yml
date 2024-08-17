@@ -1,11 +1,11 @@
 ---
-- name: Provision and configure Proxmox VMs
+- name: "Provision and configure AKS in azure via Terraform"
   hosts: localhost
   gather_facts: false
   vars_files:
-    - /root/ansibleproxmox/ansible/vault.yml
+    - /root/ansibleproxmox/ansible/azure_credentials.yml
 
   tasks:
-    - name: Run Terraform to provision VMs
+    - name: Run Terraform to provision AKS in azure
       include_role:
         name: aks
