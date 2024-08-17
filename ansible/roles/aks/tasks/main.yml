@@ -46,7 +46,6 @@
     ARM_CLIENT_SECRET: "{{ azure_credentials.client_secret }}"
     ARM_SUBSCRIPTION_ID: "{{ azure_credentials.subscription_id }}"
     ARM_TENANT_ID: "{{ azure_credentials.tenant_id }}"
-    TF_VAR_proxmox_password: "{{ proxmox_password }}"
     TF_LOG: "INFO"
     TF_IN_AUTOMATION: "1"
     TF_CLI_ARGS: "-no-color"
