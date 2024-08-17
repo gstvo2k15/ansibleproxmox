@@ -1,4 +1,4 @@
 ---
 # Cargar las credenciales de Azure desde el archivo cifrado con Vault
-azure_credentials: "{{ lookup('file', 'ansible/azure_credentials.yml') | from_yaml }}"
+azure_credentials: "{{ lookup('file', '/root/ansibleproxmox/ansible/azure_credentials.yml') | from_yaml }}"
 

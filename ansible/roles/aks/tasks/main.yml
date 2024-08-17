@@ -10,12 +10,6 @@
   shell: |
     echo "Autenticándose en Azure..."
     az login --service-principal -u {{ azure_credentials.client_id }} -p {{ azure_credentials.client_secret }} --tenant {{ azure_credentials.tenant_id }}
-
-    # Exportar las variables de entorno requeridas por Terraform
-    export ARM_CLIENT_ID={{ azure_credentials.client_id }}
-    export ARM_CLIENT_SECRET={{ azure_credentials.client_secret }}
-    export ARM_SUBSCRIPTION_ID={{ azure_credentials.subscription_id }}
-    export ARM_TENANT_ID={{ azure_credentials.tenant_id }}
   environment:
     AZURE_CLIENT_ID: "{{ azure_credentials.client_id }}"
     AZURE_CLIENT_SECRET: "{{ azure_credentials.client_secret }}"
