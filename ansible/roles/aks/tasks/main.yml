@@ -37,10 +37,14 @@
     msg: "Status of terraform init output: {{ result1.stdout_lines }}"
 
 - name: Apply Terraform configuration
-  command: "terraform apply -auto-approve"
+  command: >
+    terraform apply -auto-approve
+    -var "client_id={{ azure_credentials.client_id }}"
+    -var "client_secret={{ azure_credentials.client_secret }}"
+    -var "subscription_id={{ azure_credentials.subscription_id }}"
+    -var "tenant_id={{ azure_credentials.tenant_id }}"
   args:
     chdir: "/root/ansibleproxmox/aks-terraform"
-  register: result2
   environment:
     ARM_CLIENT_ID: "{{ azure_credentials.client_id }}"
     ARM_CLIENT_SECRET: "{{ azure_credentials.client_secret }}"
