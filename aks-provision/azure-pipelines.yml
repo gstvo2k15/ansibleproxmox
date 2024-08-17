@@ -1,0 +1,49 @@
+trigger:
+  - feature/djangoci
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  # Instalar Terraform
+  - script: |
+      echo "Instalando Terraform..."
+      TERRAFORM_VERSION="1.4.6"
+      wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      sudo mv terraform /usr/local/bin/
+      terraform -version
+      echo "Terraform instalado correctamente."
+    displayName: "Instalar Terraform"
+
+  # Autenticación en Azure y ejecución de Terraform
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: "flaskcicdlab"
+      scriptType: "bash"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        echo "Autenticándose en Azure..."
+        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+
+        # Exportar las variables de entorno requeridas por Terraform
+        export ARM_CLIENT_ID=$AZURE_CLIENT_ID
+        export ARM_CLIENT_SECRET=$AZURE_CLIENT_SECRET
+        export ARM_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID
+        export ARM_TENANT_ID=$AZURE_TENANT_ID
+
+        # Moverse al directorio terraform_AKS dentro del repositorio
+        cd $(System.DefaultWorkingDirectory)/terraform_AKS
+
+        # Inicializar Terraform
+        echo "Inicializando Terraform..."
+        terraform init -backend-config="storage_account_name=<StorageAccountName>" -backend-config="container_name=<ContainerName>" -backend-config="key=terraform.tfstate" -backend-config="resource_group_name=<ResourceGroupName>"
+
+        # Planificar la infraestructura
+        echo "Planificando la infraestructura..."
+        terraform plan -out=tfplan
+
+        # Aplicar la infraestructura
+        echo "Aplicando la infraestructura..."
+        terraform apply -auto-approve tfplan
+    displayName: "Ejecutar Terraform con Azure CLI"
