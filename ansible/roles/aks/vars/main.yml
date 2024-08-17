@@ -1,1 +1,4 @@
-vault_proxmox_password: "{{ lookup('env', 'VAULT_PASSWORD') }}"
+---
+# Cargar las credenciales de Azure desde el archivo cifrado con Vault
+azure_credentials: "{{ lookup('file', 'ansible/azure_credentials.yml') | from_yaml }}"
+
