@@ -1,0 +1,38 @@
+---
+- name: Initialize Terraform
+  command: "terraform init"
+  args:
+    chdir: "/root/ansibleproxmox/terraform"
+  register: result1
+  tags: t1
+
+- name: "Validate in az cli"
+  shell: |
+    echo "Autenticándose en Azure..."
+    az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+
+    # Exportar las variables de entorno requeridas por Terraform
+    export ARM_CLIENT_ID=$AZURE_CLIENT_ID
+    export ARM_CLIENT_SECRET=$AZURE_CLIENT_SECRET
+    export ARM_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID
+    export ARM_TENANT_ID=$AZURE_TENANT_ID
+
+    # Moverse al directorio terraform_AKS dentro del repositorio
+    cd $(System.DefaultWorkingDirectory)/terraform_AKS
+
+- name: Show output of 1st step in Terraform
+  debug:
+    msg: "Status of terraform init output: {{ result1.stdout_lines }}"
+
+- name: Apply Terraform configuration
+  command: "terraform apply -auto-approve"
+  args:
+    chdir: "/root/ansibleproxmox/terraform"
+  register: result2
+  tags: t2
+  environment:
+    TF_VAR_proxmox_password: "{{ proxmox_password }}"
+    TF_LOG: "INFO"
+    TF_IN_AUTOMATION: "1"
+    TF_CLI_ARGS: "-no-color"
+  ignore_errors: true

@@ -6,6 +6,6 @@
     - /root/ansibleproxmox/ansible/vault.yml
 
   tasks:
-    - name: Run Terraform to provision AKS
+    - name: Run Terraform to provision VMs
       include_role:
-        name: aks_provision
+        name: aks
