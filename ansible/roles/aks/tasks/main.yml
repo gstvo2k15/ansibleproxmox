@@ -4,9 +4,16 @@
   args:
     chdir: "/root/ansibleproxmox/terraform"
   register: result1
-  tags: t1
 
-- name: "Autenticarse en Azure usando Service Principal"
+- name: Verificar variables cargadas desde el Vault
+  debug:
+    msg:
+      - "Client ID: {{ azure_credentials.client_id }}"
+      - "Client Secret: {{ azure_credentials.client_secret }}"
+      - "Tenant ID: {{ azure_credentials.tenant_id }}"
+      - "Subscription ID: {{ azure_credentials.subscription_id }}"
+
+- name: Autenticarse en Azure usando Service Principal
   shell: |
     echo "Autenticándose en Azure..."
     az login --service-principal -u {{ azure_credentials.client_id }} -p {{ azure_credentials.client_secret }} --tenant {{ azure_credentials.tenant_id }}
@@ -15,19 +22,16 @@
     AZURE_CLIENT_SECRET: "{{ azure_credentials.client_secret }}"
     AZURE_SUBSCRIPTION_ID: "{{ azure_credentials.subscription_id }}"
     AZURE_TENANT_ID: "{{ azure_credentials.tenant_id }}"
-  tags: t1
 
 - name: Show output of 1st step in Terraform
   debug:
     msg: "Status of terraform init output: {{ result1.stdout_lines }}"
-  tags: t1
 
 - name: Apply Terraform configuration
   command: "terraform apply -auto-approve"
   args:
     chdir: "/root/ansibleproxmox/terraform"
   register: result2
-  tags: t2
   environment:
     ARM_CLIENT_ID: "{{ azure_credentials.client_id }}"
     ARM_CLIENT_SECRET: "{{ azure_credentials.client_secret }}"
