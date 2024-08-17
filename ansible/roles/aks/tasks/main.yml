@@ -6,7 +6,7 @@
 - name: Initialize Terraform
   command: "terraform init"
   args:
-    chdir: "/root/ansibleproxmox/terraform"
+    chdir: "/root/ansibleproxmox/aks-terraform"
   register: result1
 
 - name: Verificar que las variables de Azure se cargaron correctamente
@@ -39,7 +39,7 @@
 - name: Apply Terraform configuration
   command: "terraform apply -auto-approve"
   args:
-    chdir: "/root/ansibleproxmox/terraform"
+    chdir: "/root/ansibleproxmox/aks-terraform"
   register: result2
   environment:
     ARM_CLIENT_ID: "{{ azure_credentials.client_id }}"
